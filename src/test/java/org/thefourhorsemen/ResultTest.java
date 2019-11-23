@@ -1,40 +1,34 @@
 package org.thefourhorsemen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.thefourhorsemen.FunctionAdapter.fromDeadEnd;
-import static org.thefourhorsemen.FunctionAdapter.fromSingleTrak;
+import static org.thefourhorsemen.FunctionAdapter.fromSingleTrack;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class ResultTest {
 
   @Test
-  void then() {
+  void thenOnSuccess() {
     final String data = "some data in";
-    Result.success(data)
-          .then(fromSingleTrak(String::toUpperCase))
+    Result.from(data)
+          .then(fromSingleTrack(String::toUpperCase))
           .then(fromDeadEnd(System.out::println))
           .then(this::length)
-          .then(v -> assertValue(12, v));
+          .onSuccess(v -> assertEquals(12, v))
+          .onFailure(Assertions::fail);
   }
 
   @Test
-  void otherwise() {
+  void thenOnFailure() {
     final String data = "";
-    Result.success(data)
-          .then(fromSingleTrak(String::toUpperCase))
+    Result.from(data)
+          .then(fromSingleTrack(String::toUpperCase))
           .then(this::length)
-          .then(v -> assertValue(12, v))
-          .otherwise(e -> assertValue("empty string has no length", e));
-  }
-
-  private void assertValue(final String expected, final String actual) {
-    assertEquals(expected, actual);
-  }
-
-  private Result<Object> assertValue(final int expected, final int actual) {
-    assertEquals(expected, actual);
-    return null;
+          .onSuccess(v -> fail("Should not be a success"))
+          .onFailure(e -> assertEquals("empty string has no length", e));
   }
 
   private Result<Integer> length(final String input) {

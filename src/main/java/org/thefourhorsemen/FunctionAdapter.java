@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 public class FunctionAdapter {
 
-  public static <T, U> Function<T, Result<U>> fromSingleTrak(final Function<T, U> function) {
+  public static <T, U> Function<T, Result<U>> fromSingleTrack(final Function<T, U> function) {
     return value -> Result.success(function.apply(value));
   }
 

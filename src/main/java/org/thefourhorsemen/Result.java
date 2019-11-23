@@ -14,22 +14,34 @@ public class Result<T> {
     this.errorMessage = errorMessage;
   }
 
+  public static <T> Result<T> from(final T value) {
+    return success(value);
+  }
+
   public static <T> Result<T> success(final T value) {
-    return new Result(value, null);
+    return new Result<>(value, null);
   }
 
   public static <T> Result<T> failure(final String errorMessage) {
-    return new Result(null, errorMessage);
+    return new Result<>(null, errorMessage);
   }
 
   public <U> Result<U> then(final Function<T, Result<U>> function) {
     return success() ? function.apply(value) : Result.failure(errorMessage);
   }
 
-  public void otherwise(final Consumer<String> consumer) {
+  public Result<T> onSuccess(final Consumer<T> consumer) {
+    if (success()) {
+      consumer.accept(value);
+    }
+    return this;
+  }
+
+  public Result<T> onFailure(final Consumer<String> consumer) {
     if (!success()) {
       consumer.accept(errorMessage);
     }
+    return this;
   }
 
   private boolean success() {
