@@ -4,40 +4,40 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class Result<T> {
+public class Result<T, E> {
 
   private final T value;
-  private final String errorMessage;
+  private final E errorMessage;
 
-  private Result(final T value, final String errorMessage) {
+  private Result(final T value, final E errorMessage) {
     this.value = value;
     this.errorMessage = errorMessage;
   }
 
-  public static <T> Result<T> from(final T value) {
+  public static <T, E> Result<T, E> from(final T value, final Class<E> clazz) {
     return success(value);
   }
 
-  public static <T> Result<T> success(final T value) {
-    return new Result<>(value, null);
+  public static <T, E> Result<T, E> success(final T value) {
+    return new Result<>(Objects.requireNonNull(value), null);
   }
 
-  public static <T> Result<T> failure(final String errorMessage) {
-    return new Result<>(null, errorMessage);
+  public static <T, E> Result<T, E> failure(final E errorMessage) {
+    return new Result<>(null, Objects.requireNonNull(errorMessage));
   }
 
-  public <U> Result<U> then(final Function<T, Result<U>> function) {
+  public <U> Result<U, E> then(final Function<T, Result<U, E>> function) {
     return success() ? function.apply(value) : Result.failure(errorMessage);
   }
 
-  public Result<T> onSuccess(final Consumer<T> consumer) {
+  public Result<T, E> onSuccess(final Consumer<T> consumer) {
     if (success()) {
       consumer.accept(value);
     }
     return this;
   }
 
-  public Result<T> onFailure(final Consumer<String> consumer) {
+  public Result<T, E> onFailure(final Consumer<E> consumer) {
     if (!success()) {
       consumer.accept(errorMessage);
     }
