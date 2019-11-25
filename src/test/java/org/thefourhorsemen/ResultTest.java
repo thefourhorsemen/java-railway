@@ -2,8 +2,8 @@ package org.thefourhorsemen;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.thefourhorsemen.FunctionAdapter.fromDeadEnd;
-import static org.thefourhorsemen.FunctionAdapter.fromSingleTrack;
+import static org.thefourhorsemen.FunctionAdapter.bind;
+import static org.thefourhorsemen.FunctionAdapter.tee;
 
 import org.junit.jupiter.api.Test;
 
@@ -17,8 +17,8 @@ public class ResultTest {
   void thenOnSuccess() {
     final String data = "some data in";
     Result.from(data, ErrorMessage.class)
-          .then(fromSingleTrack(String::toUpperCase))
-          .then(fromDeadEnd(System.out::println))
+          .then(bind(String::toUpperCase))
+          .then(tee(System.out::println))
           .then(this::length)
           .onSuccess(v -> assertEquals(12, v))
           .onFailure(e -> fail(e.toString()));
@@ -28,7 +28,7 @@ public class ResultTest {
   void thenOnFailure() {
     final String data = "";
     Result.from(data, ErrorMessage.class)
-          .then(fromSingleTrack(String::toUpperCase))
+          .then(bind(String::toUpperCase))
           .then(this::length)
           .onSuccess(v -> fail("Should not be a success"))
           .onFailure(e -> assertEquals(ErrorMessage.EMPTY_STRING, e));
